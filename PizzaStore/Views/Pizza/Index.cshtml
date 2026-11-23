@@ -1,0 +1,41 @@
+@model IEnumerable<PizzaStore.Models.Pizza>
+
+@{
+    ViewData["Title"] = "Меню пицц";
+}
+
+<div class="container py-4">
+    <div class="text-center mb-5">
+        <h1 class="fw-bold display-5 text-dark">🍕 Наше премиальное меню</h1>
+        <p class="text-muted">Выберите свою любимую пиццу и добавьте в корзину</p>
+    </div>
+
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        @foreach (var pizza in Model)
+        {
+            <div class="col">
+                <div class="pizza-card">
+                    <div class="pizza-img-wrapper">
+                        <img src="@pizza.ImageUrl" alt="@pizza.Name" />
+                    </div>
+                    <div class="pizza-body">
+                        <h5 class="pizza-title">@pizza.Name</h5>
+                        <p class="pizza-description">@pizza.Description</p>
+                        <div class="pizza-footer">
+                            <span class="pizza-price">@pizza.Price.ToString("N2") ₴</span>
+                            <form asp-controller="Pizza" asp-action="AddToCart" method="post" class="m-0">
+                                <input type="hidden" name="pizzaId" value="@pizza.Id" />
+                                <input type="hidden" name="pizzaName" value="@pizza.Name" />
+                                <input type="hidden" name="price" value="@pizza.Price" />
+                                <input type="hidden" name="imageUrl" value="@pizza.ImageUrl" />
+                                <button type="submit" class="btn btn-custom-danger">
+                                    В корзину
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>

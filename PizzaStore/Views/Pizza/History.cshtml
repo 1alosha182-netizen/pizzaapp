@@ -1,0 +1,48 @@
+@model List<PizzaStore.Models.OrderViewModel>
+
+@{
+    ViewData["Title"] = "История заказов";
+}
+
+<div class="container py-5">
+    <h2 class="fw-bold mb-4">📋 История ваших заказов</h2>
+
+    @if (Model == null || !Model.Any())
+    {
+        <div class="text-center py-5">
+            <p class="text-muted fs-5">У вас пока нет оформленных заказов</p>
+            <a asp-action="Index" class="btn btn-custom-danger rounded-pill px-4">Перейти к меню</a>
+        </div>
+    }
+    else
+    {
+        <div class="row">
+            @foreach (var order in Model)
+            {
+                <div class="col-md-6 mb-4">
+                    <div class="card border-0 shadow-sm rounded-4 p-4 h-100 bg-white">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h5 class="fw-bold text-dark mb-0">🍕 @order.PizzaName</h5>
+                            <span class="badge bg-danger bg-opacity-10 text-danger px-3 py-2 rounded-pill">Количество: @order.Quantity</span>
+                        </div>
+                        <div class="mb-2">
+                            <span class="text-muted">Сумма заказа:</span> 
+                            <strong class="text-dark">@order.TotalPrice.ToString("N2") ₴</strong>
+                        </div>
+                        <div class="mb-2">
+                            <span class="text-muted">Дата и время доставки:</span> 
+                            <strong class="text-dark">@order.OrderDate в @order.DeliveryTime</strong>
+                        </div>
+                        <div class="mb-3">
+                            <span class="text-muted">Способ оплаты:</span> 
+                            <strong class="text-dark">@order.PaymentMethod</strong>
+                        </div>
+                        <div class="mt-auto pt-3 border-top text-muted small">
+                            Заказ оформлен: @order.CreatedAt
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>

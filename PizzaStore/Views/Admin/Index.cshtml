@@ -1,0 +1,155 @@
+@model PizzaStore.Models.AdminDashboardViewModel
+
+@{
+    ViewData["Title"] = "Касса и панель администратора";
+}
+
+<div class="container py-4">
+    <!-- Шапка страницы и управление сменой -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+        <div>
+            <h2 class="fw-bold mb-1">💼 Касса и Панель управления</h2>
+            <p class="text-muted mb-0">Финансовый учет смены и мониторинг заказов за сегодня</p>
+        </div>
+
+        <div class="card border-0 shadow-sm p-3 bg-light rounded-4">
+            @if (Model.IsShiftOpen)
+            {
+                <div class="d-flex align-items-center gap-3">
+                    <div>
+                        <span class="badge bg-success mb-1">Смена открыта</span>
+                        <div class="small text-muted">С @Model.ShiftOpenedAt</div>
+                    </div>
+                    <form asp-action="CloseShift" method="post" class="m-0">
+                        <input type="hidden" name="shiftId" value="@Model.ActiveShiftId" />
+                        <button type="submit" class="btn btn-outline-danger btn-sm rounded-pill px-3 fw-semibold">Закрыть смену</button>
+                    </form>
+                </div>
+            }
+            else
+            {
+                <div class="d-flex align-items-center gap-3">
+                    <div>
+                        <span class="badge bg-secondary mb-1">Смена закрыта</span>
+                        <div class="small text-muted">Требуется открытие</div>
+                    </div>
+                    <form asp-action="OpenShift" method="post" class="m-0">
+                        <button type="submit" class="btn btn-success btn-sm rounded-pill px-3 fw-semibold">🟢 Открыть смену</button>
+                    </form>
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- БЛОК КАССЫ И ФИНАНСОВЫХ ПОКАЗАТЕЛЕЙ -->
+    <div class="row g-3 mb-4">
+        <!-- Общая выручка -->
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm rounded-4 p-3 bg-dark text-white">
+                <div class="small text-white-50">Общая выручка за день</div>
+                <h3 class="fw-bold mt-1 mb-0">@Model.TotalRevenue.ToString("N2") ₴</h3>
+                <div class="small mt-2 text-info">Всего заказов: @Model.Orders.Count</div>
+            </div>
+        </div>
+
+        <!-- Наличные в кассе -->
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm rounded-4 p-3 bg-white border-start border-success border-4">
+                <div class="small text-muted">💵 Наличные в кассе</div>
+                <h4 class="fw-bold text-success mt-1 mb-0">@Model.CashRevenue.ToString("N2") ₴</h4>
+                <div class="small text-muted mt-2">Чеков: @Model.CashOrdersCount</div>
+            </div>
+        </div>
+
+        <!-- Оплата картой -->
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm rounded-4 p-3 bg-white border-start border-primary border-4">
+                <div class="small text-muted">💳 Оплата картой</div>
+                <h4 class="fw-bold text-primary mt-1 mb-0">@Model.CardRevenue.ToString("N2") ₴</h4>
+                <div class="small text-muted mt-2">Чеков: @Model.CardOrdersCount</div>
+            </div>
+        </div>
+
+        <!-- Apple Pay -->
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm rounded-4 p-3 bg-white border-start border-warning border-4">
+                <div class="small text-muted">🍏 Apple Pay</div>
+                <h4 class="fw-bold text-dark mt-1 mb-0">@Model.ApplePayRevenue.ToString("N2") ₴</h4>
+                <div class="small text-muted mt-2">Чеков: @Model.ApplePayOrdersCount</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ДЕТАЛЬНЫЙ ОБЗОР ЧЕКОВ И ПОЗИЦИЙ -->
+    <div class="card border-0 shadow-sm rounded-4 p-4">
+        <h4 class="fw-bold mb-3">🧾 Обзор чеков и позиций за сегодня</h4>
+
+        @if (Model.Orders == null || Model.Orders.Count == 0)
+        {
+            <div class="text-center py-5 text-muted">
+                <p class="mb-0">За сегодня в кассе еще не было зарегистрировано покупок.</p>
+            </div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table align-middle table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>№ чека</th>
+                            <th>Время</th>
+                            <th>Клиент</th>
+                            <th>Купленные позиции (Пицца / Кол-во)</th>
+                            <th>Сумма чека</th>
+                            <th>Оплата</th>
+                            <th>Статус</th>
+                            <th>Действие</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var order in Model.Orders)
+                        {
+                            <tr>
+                                <td class="fw-bold">#@order.Id</td>
+                                <td class="text-muted small">@order.CreatedAt</td>
+                                <td class="small">@order.UserEmail</td>
+                                <td>
+                                    <div class="fw-semibold">@order.PizzaName</div>
+                                    <span class="badge bg-light text-dark border">Кол-во: @order.Quantity шт.</span>
+                                </td>
+                                <td class="fw-bold text-danger">@order.TotalPrice.ToString("N2") ₴</td>
+                                <td>
+                                    <span class="badge bg-secondary bg-opacity-10 text-dark border">@order.PaymentMethod</span>
+                                </td>
+                                <td>
+                                    @if (order.Status == "В процессе приготовления")
+                                    {
+                                        <span class="badge bg-warning text-dark">⏳ Готовится</span>
+                                    }
+                                    else if (order.Status == "Готов")
+                                    {
+                                        <span class="badge bg-success">✅ Готов</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary">@order.Status</span>
+                                    }
+                                </td>
+                                <td>
+                                    <form asp-action="UpdateOrderStatus" method="post" class="d-flex gap-2">
+                                        <input type="hidden" name="orderId" value="@order.Id" />
+                                        <select name="status" class="form-select form-select-sm" style="width: 140px;">
+                                            <option value="В процессе приготовления" selected="@(order.Status == "В процессе приготовления")">Готовится</option>
+                                            <option value="Готов" selected="@(order.Status == "Готов")">Готов</option>
+                                        </select>
+                                        <button type="submit" class="btn btn-dark btn-sm">Ок</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>

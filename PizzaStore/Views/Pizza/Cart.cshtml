@@ -1,0 +1,82 @@
+@model List<PizzaStore.Models.CartItem>
+
+@{
+    ViewData["Title"] = "Корзина";
+    var todayFormatted = DateTime.Now.ToString("dd.MM.yyyy");
+}
+
+<div class="container py-5">
+    <h2 class="fw-bold mb-4">🛒 Ваша корзина</h2>
+
+    @if (Model == null || !Model.Any())
+    {
+        <div class="text-center py-5">
+            <p class="text-muted fs-5">Корзина пока пуста</p>
+            <a asp-action="Index" class="btn btn-custom-danger rounded-pill px-4">Перейти к меню</a>
+        </div>
+    }
+    else
+    {
+        <div class="row">
+            <div class="col-lg-8 mb-4">
+                <div class="card border-0 shadow-sm rounded-4 p-4">
+                    @foreach (var item in Model)
+                    {
+                        <div class="d-flex align-items-center mb-3 pb-3 border-bottom">
+                            <img src="@item.ImageUrl" alt="@item.PizzaName" class="rounded-3 me-3" style="width: 80px; height: 80px; object-fit: cover;" />
+                            <div class="flex-grow-1">
+                                <h5 class="fw-bold mb-1">@item.PizzaName</h5>
+                                <p class="text-muted mb-0">@item.Price.ToString("N2") ₴ × @item.Quantity</p>
+                            </div>
+                            <div class="fw-bold fs-5 text-dark">
+                                @item.TotalPrice.ToString("N2") ₴
+                            </div>
+                        </div>
+                    }
+                    <div class="d-flex justify-content-between align-items-center mt-3">
+                        <h4 class="fw-bold mb-0">Итого:</h4>
+                        <h4 class="fw-bold text-danger mb-0">@Model.Sum(x => x.TotalPrice).ToString("N2") ₴</h4>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="card border-0 shadow-sm rounded-4 p-4 bg-light">
+                    <h4 class="fw-bold mb-3">Оформление</h4>
+                    <form asp-action="Checkout" method="post">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Дата доставки</label>
+                            <input type="text" class="form-control bg-white" value="@todayFormatted (Сегодня)" readonly />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Время доставки (10:00 - 23:30)</label>
+                            <select name="deliveryTime" class="form-select" required>
+                                @for (int hour = 10; hour <= 23; hour++)
+                                {
+                                    <option value="@($"{hour:D2}:00")">@($"{hour:D2}:00")</option>
+                                    if (hour < 23)
+                                    {
+                                        <option value="@($"{hour:D2}:30")">@($"{hour:D2}:30")</option>
+                                    }
+                                }
+                                <option value="23:30">23:30</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold">Способ оплаты</label>
+                            <select name="paymentMethod" class="form-select" required>
+                                <option value="Наличные при получении">💵 Наличные при получении</option>
+                                <option value="Картой при получении">💳 Картой при получении</option>
+                                <option value="Apple Pay">🍏 Apple Pay</option>
+                            </select>
+                        </div>
+
+                        <button type="submit" class="btn btn-custom-danger w-100 py-3 rounded-pill fw-bold shadow-sm">Подтвердить заказ</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    }
+</div>

@@ -1,0 +1,60 @@
+@{
+    ViewData["Title"] = "Вход";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-5">
+            <div class="card border-0 shadow-sm rounded-4 p-4">
+                <h2 class="fw-bold text-center mb-4">🔑 Вход в систему</h2>
+
+                <form asp-action="Login" method="post">
+                    <div asp-validation-summary="All" class="text-danger mb-3 small"></div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Email</label>
+                        <input type="email" name="email" class="form-control rounded-3" placeholder="name@example.com" required />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Пароль</label>
+                        <div class="input-group">
+                            <input type="password" name="password" id="passwordInput" class="form-control rounded-start-3" placeholder="••••••••" required />
+                            <button type="button" class="btn btn-outline-secondary border rounded-end-3" id="togglePassword">
+                                👁️
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" name="rememberMe" value="true" class="form-check-input" id="rememberMe" />
+                        <label class="form-check-label text-muted" for="rememberMe">Запомнить меня</label>
+                    </div>
+
+                    <button type="submit" class="btn btn-custom-danger w-100 py-2 rounded-pill fw-bold shadow-sm mb-3">Войти</button>
+                    
+                    <div class="text-center">
+                        <span class="text-muted small">Нет аккаунта?</span> 
+                        <a asp-action="Register" class="text-danger fw-semibold text-decoration-none small">Зарегистрироваться</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Скрипт для работы глазка (показ/скрытие пароля)
+        document.getElementById('togglePassword').addEventListener('click', function () {
+            const passwordInput = document.getElementById('passwordInput');
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                this.textContent = '🙈';
+            } else {
+                passwordInput.type = 'password';
+                this.textContent = '👁️';
+            }
+        });
+    </script>
+}
